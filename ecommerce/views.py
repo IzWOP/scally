@@ -1,24 +1,30 @@
-from django.shortcuts import render
-from .forms import ContactForm
+from django.contrib.auth import authenticate,login
+from django.shortcuts import render, redirect
+from .forms import ContactForm, LoginForm, RegisterForm
+
 
 def index(request):
     context = {
-            'title':'Home',
+            'title': 'Home',
             'content': 'Welcome to Home',
     }
+    if request.user.is_authenticated():
+        context['premium_content'] = "I thought this was my hood."
     return render(request,"index.html",context)
+
 
 def about_page(request):
     context = {
-            'title':'About Page',
+            'title': 'About Page',
             'content': 'Welcome to About Page',
     }
-    return render(request,"index.html", context)
+    return render(request, "index.html", context)
+
 
 def contact_page(request):
     contact_form = ContactForm(request.POST or None)
     context = {
-            'title':'Contact Page',
+            'title': 'Contact Page',
             'content': 'Welcome to Contact Page',
             'form': contact_form,
     }
@@ -30,17 +36,38 @@ def contact_page(request):
     #     print(request.POST.get('email'))
     #     print(request.POST.get('content'))
 
-    return render(request,"contact/view.html",context)
+    return render(request, "contact/view.html", context)
+
 
 def login_page(request):
     form = LoginForm(request.POST or None)
-    print(request.user.is_authenticated())
+    context = {
+        'form': form
+    }
+    print("User logged in")
+    #print(request.user.is_authenticated())
     if form.is_valid():
         print(form.cleaned_data)
-    return render(request,"auth/login.html",{})
+        username = form.cleaned_data.get("username")
+        password = form.cleaned_data.get("password")
+        user = authenticate(request, username=username, password=password)
+        print(request.user.is_authenticated)
+        if user is not None:
+            print(request.user.is_authenticated)
+            login(request, user)
+            # Redirect to a success page.
+            #context['form'] = LoginForm()
+            return redirect("/")
+        else:
+            print("Error")
+    return render(request, "auth/login.html", context)
+
 
 def register_page(request):
-    form = LoginForm(request.POST or None)
+    form = RegisterForm(request.POST or None)
+    context = {
+        'form': form
+    }
     if form.is_valid():
         print(form.cleaned_data)
-    return render(request,"auth/register.html",{})
+    return render(request, "auth/register.html", context)
