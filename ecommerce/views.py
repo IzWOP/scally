@@ -8,9 +8,9 @@ def index(request):
             'title': 'Home',
             'content': 'Welcome to Home',
     }
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         context['premium_content'] = "I thought this was my hood."
-    return render(request,"index.html",context)
+    return render(request, "index.html", context)
 
 
 def about_page(request):
@@ -45,15 +45,13 @@ def login_page(request):
         'form': form
     }
     print("User logged in")
-    #print(request.user.is_authenticated())
     if form.is_valid():
         print(form.cleaned_data)
         username = form.cleaned_data.get("username")
         password = form.cleaned_data.get("password")
         user = authenticate(request, username=username, password=password)
-        print(request.user.is_authenticated)
+        print(user)
         if user is not None:
-            print(request.user.is_authenticated)
             login(request, user)
             # Redirect to a success page.
             #context['form'] = LoginForm()
@@ -75,4 +73,5 @@ def register_page(request):
         password = form.cleaned_data.get("password")
         new_user = User.objects.create_user(username, email, password)
         print(new_user)
+
     return render(request, "auth/register.html", context)
